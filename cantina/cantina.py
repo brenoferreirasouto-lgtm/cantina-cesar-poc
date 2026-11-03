@@ -4,7 +4,7 @@ from __future__ import annotations
 from itertools import count
 from typing import Optional
 
-from cantina.dinheiro import formatar
+from cantina.eventos import FilaAndou, PagamentoRecusado, PedidoPago, PedidoPronto
 from cantina.fila import FilaCantina
 from cantina.notificacao import Notificador
 from cantina.pagamento import MeioPagamento
@@ -13,6 +13,10 @@ from cantina.pedido import Pedido
 
 class Cantina:
     """Orquestra o fluxo, delegando cada parte para quem é responsável por ela.
+
+    [Responsabilidade Única] Só decide O QUE acontece (cobrou, entrou na fila,
+    ficou pronto) e publica eventos. COMO isso aparece para o aluno é problema
+    do Notificador. Ver "A IA errou" no README.
 
     [Inversão de Dependências] Depende das abstrações MeioPagamento e
     Notificador, nunca de Pix, CreditoCarteirinha ou print(). Por isso aceitar
@@ -34,12 +38,13 @@ class Cantina:
             raise ValueError("Pedido vazio: adicione itens antes de pagar.")
         resultado = meio.pagar(pedido.total())
         if not resultado.aprovado:
-            self._avisar(pedido, f"❌ Pagamento recusado: {resultado.motivo}. Tente outro meio.")
+            self._notificador.notificar(PagamentoRecusado(pedido.aluno, resultado.motivo))
             return False
         pedido.confirmar_pagamento(senha=next(self._senhas))
         self._fila.entrar(pedido)
-        self._avisar(pedido, f"✅ Pedido #{pedido.senha} pago ({formatar(pedido.total())}). "
-                             f"{self._situacao(pedido)}")
+        self._notificador.notificar(PedidoPago(
+            pedido.aluno, pedido.senha, pedido.total(),
+            self.posicao(pedido), self.estimativa_minutos(pedido)))
         return True
 
     def preparar_proximo(self) -> Optional[Pedido]:
@@ -47,7 +52,7 @@ class Cantina:
         if pedido is None:
             return None
         pedido.marcar_pronto()
-        self._avisar(pedido, f"🍔 Pedido #{pedido.senha} pronto! Pode buscar no balcão.")
+        self._notificador.notificar(PedidoPronto(pedido.aluno, pedido.senha))
         self._atualizar_quem_espera()
         return pedido
 
@@ -57,12 +62,7 @@ class Cantina:
     def estimativa_minutos(self, pedido: Pedido) -> int:
         return self.posicao(pedido) * self._minutos_por_pedido
 
-    def _situacao(self, pedido: Pedido) -> str:
-        return f"Você é o {self.posicao(pedido)}º da fila (~{self.estimativa_minutos(pedido)} min)."
-
     def _atualizar_quem_espera(self) -> None:
         for pedido in self._fila.aguardando():
-            self._avisar(pedido, f"⏳ Andou! {self._situacao(pedido)}")
-
-    def _avisar(self, pedido: Pedido, mensagem: str) -> None:
-        self._notificador.notificar(pedido.aluno, mensagem)
+            self._notificador.notificar(FilaAndou(
+                pedido.aluno, self.posicao(pedido), self.estimativa_minutos(pedido)))

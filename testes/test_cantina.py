@@ -3,27 +3,29 @@
 Só é possível testar a Cantina sem banco, sem Pix de verdade e sem terminal
 porque ela depende de abstrações (Inversão de Dependências): aqui entram
 implementações falsas de MeioPagamento e Notificador.
+
+Os testes conferem EVENTOS (o que aconteceu), não frases. Mudar o texto de
+um aviso não quebra nenhum teste daqui (Responsabilidade Única).
 """
 import unittest
 
 from cantina.cantina import Cantina
 from cantina.cardapio import cardapio_do_dia
+from cantina.eventos import FilaAndou, PagamentoRecusado, PedidoPago, PedidoPronto
 from cantina.notificacao import Notificador
 from cantina.pagamento import MeioPagamento, ResultadoPagamento
 from cantina.pedido import Pedido, StatusPedido
 
 CARDAPIO = cardapio_do_dia()
+COXINHA = 650
 
 
 class NotificadorEmMemoria(Notificador):
     def __init__(self):
-        self.mensagens = []
+        self.eventos = []
 
-    def notificar(self, aluno, mensagem):
-        self.mensagens.append((aluno, mensagem))
-
-    def para(self, aluno):
-        return [mensagem for destino, mensagem in self.mensagens if destino == aluno]
+    def notificar(self, evento):
+        self.eventos.append(evento)
 
 
 class MeioFalso(MeioPagamento):
@@ -56,28 +58,28 @@ class TestCantina(unittest.TestCase):
 
         self.assertEqual(pedido.status, StatusPedido.ABERTO)
         self.assertIsNone(self.cantina.preparar_proximo())
-        self.assertIn("cartão de teste recusado", self.avisos.para("Caio")[0])
+        self.assertEqual(self.avisos.eventos,
+                         [PagamentoRecusado("Caio", "cartão de teste recusado")])
 
     def test_pagamento_aprovado_recebe_senha_posicao_e_estimativa(self):
         self.cantina.fazer_pedido(pedido_de("Ana"), MeioFalso())
-        bruno = pedido_de("Bruno")
 
-        self.cantina.fazer_pedido(bruno, MeioFalso())
+        self.cantina.fazer_pedido(pedido_de("Bruno"), MeioFalso())
 
-        self.assertEqual(bruno.senha, 2)
-        self.assertEqual(self.cantina.posicao(bruno), 2)
-        self.assertEqual(self.cantina.estimativa_minutos(bruno), 4)
+        self.assertEqual(self.avisos.eventos[-1],
+                         PedidoPago("Bruno", senha=2, valor=COXINHA, posicao=2, minutos=4))
 
     def test_pedido_pronto_avisa_o_dono_e_atualiza_quem_espera(self):
         ana, bruno = pedido_de("Ana"), pedido_de("Bruno")
         self.cantina.fazer_pedido(ana, MeioFalso())
         self.cantina.fazer_pedido(bruno, MeioFalso())
+        self.avisos.eventos.clear()
 
         self.assertIs(self.cantina.preparar_proximo(), ana)
 
         self.assertEqual(ana.status, StatusPedido.PRONTO)
-        self.assertIn("pronto", self.avisos.para("Ana")[-1])
-        self.assertIn("1º da fila", self.avisos.para("Bruno")[-1])
+        self.assertEqual(self.avisos.eventos,
+                         [PedidoPronto("Ana", senha=1), FilaAndou("Bruno", posicao=1, minutos=2)])
 
     def test_pedido_vazio_nao_chega_a_ser_cobrado(self):
         meio = MeioFalso()
