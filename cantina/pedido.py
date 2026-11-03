@@ -59,6 +59,12 @@ class Pedido:
     def senha(self) -> Optional[int]:
         return self._senha
 
+    def validar_para_pagamento(self) -> None:
+        """Falha ANTES de qualquer cobrança se este pedido não pode ser pago."""
+        self._exigir_status(StatusPedido.ABERTO, "pagar de novo")
+        if not self._itens:
+            raise ValueError("Pedido vazio: adicione itens antes de pagar.")
+
     def confirmar_pagamento(self, senha: int) -> None:
         self._exigir_status(StatusPedido.ABERTO, "confirmar pagamento")
         self._senha = senha

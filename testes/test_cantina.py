@@ -87,6 +87,15 @@ class TestCantina(unittest.TestCase):
             self.cantina.fazer_pedido(Pedido("Duda"), meio)
         self.assertEqual(meio.cobrancas, [])
 
+    def test_toque_duplo_no_pagar_nao_cobra_duas_vezes(self):
+        pedido, meio = pedido_de("Ana"), MeioFalso()
+        self.cantina.fazer_pedido(pedido, meio)
+
+        with self.assertRaises(RuntimeError):
+            self.cantina.fazer_pedido(pedido, meio)
+
+        self.assertEqual(meio.cobrancas, [COXINHA])
+
 
 if __name__ == "__main__":
     unittest.main()

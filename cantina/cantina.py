@@ -34,8 +34,7 @@ class Cantina:
         self._senhas = count(1)
 
     def fazer_pedido(self, pedido: Pedido, meio: MeioPagamento) -> bool:
-        if pedido.total() <= 0:
-            raise ValueError("Pedido vazio: adicione itens antes de pagar.")
+        pedido.validar_para_pagamento()  # antes de cobrar: toque duplo não cobra duas vezes
         resultado = meio.pagar(pedido.total())
         if not resultado.aprovado:
             self._notificador.notificar(PagamentoRecusado(pedido.aluno, resultado.motivo))
