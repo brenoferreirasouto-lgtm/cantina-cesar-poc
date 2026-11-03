@@ -12,10 +12,10 @@ Princípios de projeto do cap. 5 de *Engenharia de Software Moderna* (Marco Tuli
 
 | Papel | O que fez no projeto | Integrante |
 |---|---|---|
-| Arquitetura e Princípios | Desenhou as abstrações (`MeioPagamento`, `Notificador`, `PoliticaDesconto`) e o mapa de princípios deste README | _nome_ |
-| Desenvolvimento do domínio | `Cardapio`, `Pedido`, `FilaCantina`, `Cantina` e o `demo.py` | _nome_ |
-| Qualidade: testes e métricas | Contrato de Liskov, prova do Aberto/Fechado com o voucher e `metricas.py` | _nome_ |
-| Produto, vídeo e revisão da IA | Escopo do app, roteiro e vídeo, revisão do código gerado (seção "A IA errou") | _nome_ |
+| Arquitetura e Princípios | Desenhou as abstrações (`MeioPagamento`, `Notificador`, `PoliticaDesconto`) e o mapa de princípios deste README | Breno Ferreira Souto |
+| Desenvolvimento do domínio | `Cardapio`, `Pedido`, `FilaCantina`, `Cantina` e o `demo.py` | Vinicius Beleza |
+| Qualidade: testes e métricas | Contrato de Liskov, prova do Aberto/Fechado com o voucher e `metricas.py` | Bruno Rodrigues |
+| Produto, vídeo e revisão da IA | Escopo do app, roteiro e vídeo, revisão do código gerado (seção "A IA errou") | João Fernando |
 
 ## O que o app faz
 
