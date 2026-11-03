@@ -17,7 +17,7 @@ def etapa(texto: str) -> None:
 def main() -> None:
     print("🎟️  NOVIDADE NA CANTINA: Voucher CESAR")
     print("   Arquivos de cantina/ alterados para isso: nenhum.")
-    print("   Confira: git show --stat prova-aberto-fechado")
+    print("   Confira: git show --stat 6bc1373")
 
     cardapio = cardapio_do_dia()
     cantina = Cantina(NotificadorConsole())

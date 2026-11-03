@@ -6,7 +6,7 @@ qualquer MeioPagamento (Inversão de Dependências), a interface só pede
 pagar() (Segregação de Interfaces) e o voucher cumpre o mesmo contrato dos
 outros meios (Liskov), verificado em testes/test_voucher.py.
 
-Prova: git show --stat prova-aberto-fechado
+Prova: git show --stat 6bc1373 (o commit que trouxe o voucher)
 
 No go-horse, aceitar voucher exigiria mais um elif dentro de
 processar_pedido(), a função que já fazia tudo.
