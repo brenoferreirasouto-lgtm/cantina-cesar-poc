@@ -6,7 +6,7 @@
 Hackathon Relâmpago #1 · Fundamentos de Desenvolvimento de Software 2026.2 · CESAR School
 Princípios de projeto do cap. 5 de *Engenharia de Software Moderna* (Marco Tulio Valente).
 
-▶️ **[Assistir ao vídeo da Entrega 2](https://brenoferreirasouto-lgtm.github.io/cantina-cesar-poc/video/)** (menos de 3 min, com narração e legenda)
+▶️ **[Assistir ao vídeo da Entrega 2](https://brenoferreirasouto-lgtm.github.io/cantina-cesar-poc/video/)** (2:27, com narração e legenda)
 
 ## Equipe
 
